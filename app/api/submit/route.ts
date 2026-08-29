@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { getSupabaseAdmin } from "@/lib/supabase";
+import { getSql } from "@/lib/db";
 
-// Runs on the Node.js runtime (needs fs for the local-dev fallback and the
-// service-role Supabase client).
+// Runs on the Node.js runtime (needs the Postgres client and, for the dev
+// fallback, fs).
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -16,43 +16,38 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
-  const payload = body as {
-    submittedAt?: string;
-    answers?: unknown;
-  };
+  const payload = body as { submittedAt?: string; answers?: unknown };
+  const submittedAt = payload.submittedAt ?? new Date().toISOString();
+  const answers = payload.answers ?? [];
 
-  const record = {
-    submitted_at: payload.submittedAt ?? new Date().toISOString(),
-    answers: payload.answers ?? null,
-  };
-
-  // 1) Preferred: persist to Supabase (production).
-  const supabase = getSupabaseAdmin();
-  if (supabase) {
-    const { error } = await supabase.from("responses").insert(record);
-    if (error) {
-      return NextResponse.json(
-        { ok: false, error: error.message },
-        { status: 500 }
-      );
+  // 1) Preferred: persist to Supabase Postgres (production).
+  const sql = getSql();
+  if (sql) {
+    try {
+      await sql`
+        insert into public.responses (submitted_at, answers)
+        values (${submittedAt}, ${sql.json(answers as Parameters<typeof sql.json>[0])})
+      `;
+      return NextResponse.json({ ok: true, stored: "supabase" });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "DB insert failed";
+      return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
-    return NextResponse.json({ ok: true, stored: "supabase" });
   }
 
-  // 2) Fallback: append to a local file so local dev works without Supabase.
-  //    (This branch is skipped on read-only/serverless hosts.)
+  // 2) Fallback: append to a local file so local dev works without a database.
   try {
     const dir = path.join(process.cwd(), "data");
     await fs.mkdir(dir, { recursive: true });
     await fs.appendFile(
       path.join(dir, "responses.ndjson"),
-      JSON.stringify({ ...record, receivedAt: new Date().toISOString() }) + "\n",
+      JSON.stringify({ submitted_at: submittedAt, answers }) + "\n",
       "utf8"
     );
     return NextResponse.json({ ok: true, stored: "file" });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
-      { ok: false, error: "No storage configured (set Supabase env vars)" },
+      { ok: false, error: "No storage configured (set DATABASE_URL)" },
       { status: 500 }
     );
   }

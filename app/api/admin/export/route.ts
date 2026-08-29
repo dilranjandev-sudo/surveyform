@@ -1,5 +1,7 @@
+import { cookies } from "next/headers";
 import { getSql } from "../../../../lib/db";
 import { questions } from "../../../../lib/questions";
+import { ADMIN_COOKIE, getStoredAdmin, sessionTokenFor } from "../../../../lib/adminAuth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +19,14 @@ function esc(v: unknown): string {
 }
 
 export async function GET() {
+  // Auth: cookie must match the current password hash in the DB.
+  const admin = await getStoredAdmin();
+  if (!admin) return new Response("Unauthorized", { status: 401 });
+  const token = (await cookies()).get(ADMIN_COOKIE)?.value;
+  if (!token || token !== (await sessionTokenFor(admin.password_hash))) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   const sql = getSql();
   if (!sql) {
     return new Response("DATABASE_URL not set", { status: 503 });

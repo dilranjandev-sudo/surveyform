@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
-import { ADMIN_COOKIE, expectedSession } from "../../../../lib/adminAuth";
+import {
+  ADMIN_COOKIE,
+  credHash,
+  getStoredAdmin,
+  sessionTokenFor,
+} from "../../../../lib/adminAuth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const expectedUser = (process.env.ADMIN_USER || "admin").trim();
-  const expectedPass = process.env.ADMIN_PASSWORD?.trim();
-
-  if (!expectedPass) {
+  const admin = await getStoredAdmin();
+  if (!admin) {
     return NextResponse.json(
-      { ok: false, error: "Admin is not configured on the server." },
+      { ok: false, error: "Admin password is not set up yet." },
       { status: 503 }
     );
   }
@@ -24,22 +27,22 @@ export async function POST(req: Request) {
 
   const user = String(body.user ?? "").trim();
   const pass = String(body.password ?? "");
+  const hash = await credHash(user, pass);
 
-  if (user !== expectedUser || pass !== expectedPass) {
+  if (user !== admin.username || hash !== admin.password_hash) {
     return NextResponse.json(
       { ok: false, error: "Incorrect username or password." },
       { status: 401 }
     );
   }
 
-  // Mark the cookie "secure" only when the public connection is HTTPS, so
-  // login works on http too and behind Hostinger's proxy (x-forwarded-proto).
+  // "secure" only over HTTPS, so it works on http and behind Hostinger's proxy.
   const proto =
     req.headers.get("x-forwarded-proto") ||
     new URL(req.url).protocol.replace(":", "");
   const isHttps = proto.split(",")[0].trim() === "https";
 
-  const token = (await expectedSession())!;
+  const token = await sessionTokenFor(admin.password_hash);
   const res = NextResponse.json({ ok: true });
   res.cookies.set(ADMIN_COOKIE, token, {
     httpOnly: true,

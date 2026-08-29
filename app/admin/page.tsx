@@ -1,8 +1,19 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { getSql } from "../../lib/db";
 import { questions } from "../../lib/questions";
+import { ADMIN_COOKIE, getStoredAdmin, sessionTokenFor } from "../../lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+async function requireAuth() {
+  const admin = await getStoredAdmin();
+  if (!admin) redirect("/admin/login");
+  const token = (await cookies()).get(ADMIN_COOKIE)?.value;
+  const expected = await sessionTokenFor(admin.password_hash);
+  if (!token || token !== expected) redirect("/admin/login");
+}
 
 type Ans = { id: number; question?: string; answer: unknown };
 type Row = {
@@ -24,6 +35,8 @@ function fmtAnswer(v: unknown) {
 }
 
 export default async function AdminPage() {
+  await requireAuth();
+
   const sql = getSql();
   let rows: Row[] = [];
   let error: string | null = null;

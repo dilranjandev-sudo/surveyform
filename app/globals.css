@@ -949,3 +949,84 @@ button {
   .rrow { grid-template-columns: 1fr; gap: 4px; }
   .rsum__use { display: none; }
 }
+
+/* ============ Admin login ============ */
+.login {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 30px 20px;
+  background:
+    radial-gradient(120% 90% at 50% -10%, #1e2d29 0%, #141f1c 55%, #0e1714 100%);
+}
+.login__card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--paper-2);
+  color: var(--ink);
+  border-radius: 16px;
+  padding: 34px 30px 30px;
+  box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+}
+.login__brand {
+  font-family: var(--serif);
+  font-size: 26px;
+  letter-spacing: -0.02em;
+}
+.login__brand b { color: var(--signal); font-weight: 700; }
+.login__kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 4px 0 24px;
+}
+.login__label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+}
+.login__input {
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--paper-3);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  transition: border-color 0.16s, box-shadow 0.16s;
+}
+.login__input:focus {
+  outline: none;
+  border-color: var(--signal);
+  box-shadow: 0 0 0 4px rgba(12, 143, 107, 0.12);
+}
+.login__error {
+  background: #fbe9e2;
+  border: 1px solid var(--alert);
+  color: #8a2c12;
+  font-size: 13.5px;
+  padding: 10px 13px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.login__btn {
+  margin-top: 4px;
+  background: var(--ink);
+  color: var(--paper-2);
+  border: none;
+  border-radius: 999px;
+  padding: 13px 18px;
+  font-size: 15.5px;
+  cursor: pointer;
+  transition: background 0.16s;
+}
+.login__btn:hover:not(:disabled) { background: var(--signal); }
+.login__btn:disabled { opacity: 0.55; cursor: not-allowed; }

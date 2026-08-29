@@ -57,6 +57,7 @@ export default async function AdminPage() {
         <div className="admin__actions">
           <a className="abtn" href="/admin">Refresh</a>
           <a className="abtn abtn--primary" href="/api/admin/export">Export CSV</a>
+          <a className="abtn" href="/api/admin/logout">Log out</a>
         </div>
       </header>
 

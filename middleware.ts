@@ -4,8 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 export const config = { matcher: ["/admin/:path*", "/admin", "/api/admin/:path*"] };
 
 export function middleware(req: NextRequest) {
-  const expectedUser = process.env.ADMIN_USER || "admin";
-  const expectedPass = process.env.ADMIN_PASSWORD;
+  // .trim() guards against stray spaces/newlines pasted into the env value.
+  const expectedUser = (process.env.ADMIN_USER || "admin").trim();
+  const expectedPass = process.env.ADMIN_PASSWORD?.trim();
 
   // If no password is configured, keep the data private (fail closed).
   if (!expectedPass) {

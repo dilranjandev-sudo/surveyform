@@ -1,4 +1,4 @@
--- BIQADX survey — Supabase schema
+-- Survey — Supabase schema
 -- Run this once in your Supabase project: Dashboard → SQL Editor → paste → Run.
 
 create table if not exists public.responses (

@@ -48,7 +48,7 @@ export default async function AdminPage() {
       <header className="admin__head">
         <div>
           <div className="admin__brand">
-            BIQAD<b>X</b> <span>· Responses</span>
+            Field <b>Study</b> <span>· Responses</span>
           </div>
           <div className="admin__count">
             {error ? "—" : `${rows.length} response${rows.length === 1 ? "" : "s"}`}
@@ -104,7 +104,7 @@ export default async function AdminPage() {
       </div>
 
       <footer className="admin__foot">
-        BIQADX Diagnostics · showing up to 1000 most recent responses
+        Field study · showing up to 1000 most recent responses
       </footer>
     </div>
   );

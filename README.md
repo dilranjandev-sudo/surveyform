@@ -1,4 +1,4 @@
-# BIQADX — Diagnostic Workflow Field Study
+# Diagnostic Workflow Field Study
 
 An interactive, one-question-at-a-time survey for clinicians, built with **Next.js** (App Router) and styled as a clinical monitoring instrument. Responses are stored in **Supabase** (Postgres).
 

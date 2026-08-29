@@ -85,7 +85,7 @@ function Intro({ onStart }: { onStart: () => void }) {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="intro__brand">
-          BIQAD<b>X</b>
+          Field <b>Study</b>
         </div>
         <div className="intro__kicker">Clinical Field Study · Confidential</div>
 
@@ -283,11 +283,9 @@ function ScaleView({
 /* ---------------- OUTRO ---------------- */
 function Outro({
   answered,
-  onDownload,
   saveState,
 }: {
   answered: number;
-  onDownload: () => void;
   saveState: "idle" | "saving" | "saved" | "error";
 }) {
   return (
@@ -325,11 +323,6 @@ function Outro({
             </b>
             <span>Submission status</span>
           </div>
-        </div>
-        <div className="report__actions">
-          <button className="btn btn--primary" onClick={onDownload}>
-            Download my responses
-          </button>
         </div>
       </motion.div>
     </div>
@@ -395,7 +388,7 @@ export default function Survey() {
         })),
       };
       try {
-        localStorage.setItem("biqadx_survey", JSON.stringify(payload));
+        localStorage.setItem("survey_responses", JSON.stringify(payload));
       } catch {}
       try {
         const res = await fetch("/api/submit", {
@@ -508,35 +501,9 @@ export default function Survey() {
     });
   };
 
-  const downloadResponses = () => {
-    const payload = {
-      submittedAt: new Date().toISOString(),
-      answers: questions.map((qq) => ({
-        id: qq.id,
-        question: qq.title,
-        answer: answers[qq.id] ?? null,
-      })),
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "biqadx-survey-responses.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   if (phase === "intro") return <Intro onStart={() => setPhase("survey")} />;
   if (phase === "outro")
-    return (
-      <Outro
-        answered={answeredCount}
-        onDownload={downloadResponses}
-        saveState={saveState}
-      />
-    );
+    return <Outro answered={answeredCount} saveState={saveState} />;
 
   const progress = answeredCount / CORE;
   const curSection = q.section;
@@ -564,9 +531,9 @@ export default function Survey() {
       <aside className="rail">
         <div className="brand">
           <span className="brand__mark">
-            BIQAD<b>X</b>
+            Field <b>Study</b>
           </span>
-          <span className="brand__tag">Field study</span>
+          <span className="brand__tag">Confidential</span>
         </div>
 
         <div className="rec">
@@ -602,7 +569,7 @@ export default function Survey() {
           })}
         </div>
 
-        <div className="rail__foot">© BIQADX Diagnostics</div>
+        <div className="rail__foot">Confidential field study</div>
       </aside>
 
       {/* -------- stage -------- */}

@@ -16,9 +16,9 @@
   --alert: #e0552b;
   --amber: #dc9b0a;
 
-  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --serif: "Fraunces", Georgia, "Times New Roman", serif;
-  --sans: "Instrument Sans", system-ui, -apple-system, sans-serif;
+  --mono: "Times New Roman", Times, Georgia, serif;
+  --serif: "Times New Roman", Times, Georgia, serif;
+  --sans: "Times New Roman", Times, Georgia, serif;
 
   --rail-w: 340px;
   --shadow: 0 26px 60px -32px rgba(10, 20, 18, 0.55);

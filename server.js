@@ -10,6 +10,6 @@ const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
   createServer((req, res) => handle(req, res)).listen(port, () => {
-    console.log(`> BIQADX survey ready on port ${port}`);
+    console.log(`> Survey ready on port ${port}`);
   });
 });

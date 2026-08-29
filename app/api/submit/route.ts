@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { getSql } from "@/lib/db";
+import { getSql } from "../../../lib/db";
 
 // Runs on the Node.js runtime (needs the Postgres client and, for the dev
 // fallback, fs).

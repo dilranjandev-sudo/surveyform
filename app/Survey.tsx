@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { questions, sections, type Question } from "@/lib/questions";
-import { ecgPath } from "@/lib/ecg";
+import { questions, sections, type Question } from "../lib/questions";
+import { ecgPath } from "../lib/ecg";
 
 const LETTERS = "ABCDEFGHIJKLMNOP";
 type Answer = string | string[] | number | undefined;

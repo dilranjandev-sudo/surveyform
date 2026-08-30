@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSql } from "../../lib/db";
-import { questions } from "../../lib/questions";
 import { ADMIN_COOKIE, getStoredAdmin, sessionTokenFor } from "../../lib/adminAuth";
 
 export const dynamic = "force-dynamic";
@@ -15,15 +14,13 @@ async function requireAuth() {
   if (!token || token !== expected) redirect("/admin/login");
 }
 
-type Ans = { id: number; question?: string; answer: unknown };
+type Ans = { id: string; question?: string; answer: unknown };
 type Row = {
   id: string;
   created_at: string;
   submitted_at: string | null;
   answers: Ans[];
 };
-
-const titleById = new Map(questions.map((q) => [q.id, q.title]));
 
 function fmtDate(d: string) {
   return new Date(d).toISOString().slice(0, 16).replace("T", " ") + " UTC";
@@ -32,6 +29,11 @@ function fmtAnswer(v: unknown) {
   if (v == null || v === "") return "—";
   if (Array.isArray(v)) return v.join(", ");
   return String(v);
+}
+function snippet(r: Row) {
+  const first = r.answers?.find((a) => fmtAnswer(a.answer) !== "—");
+  const s = first ? fmtAnswer(first.answer) : "";
+  return s.length > 60 ? s.slice(0, 60) + "…" : s;
 }
 
 export default async function AdminPage() {
@@ -83,38 +85,24 @@ export default async function AdminPage() {
       )}
 
       <div className="admin__list">
-        {rows.map((r, idx) => {
-          const map = new Map(r.answers?.map((a) => [a.id, a.answer]) ?? []);
-          const specialty = fmtAnswer(map.get(1));
-          const score = map.get(11);
-          const wouldUse = fmtAnswer(map.get(10));
-          return (
-            <details className="rcard" key={r.id} open={idx === 0}>
-              <summary className="rsum">
-                <span className="rsum__n">#{rows.length - idx}</span>
-                <span className="rsum__time">{fmtDate(r.created_at)}</span>
-                <span className="rsum__spec">{specialty}</span>
-                {typeof score === "number" && (
-                  <span className="rsum__score" data-v={score}>
-                    value {score}/10
-                  </span>
-                )}
-                <span className="rsum__use">{wouldUse}</span>
-              </summary>
-              <div className="rgrid">
-                {(r.answers ?? []).map((a) => (
-                  <div className="rrow" key={a.id}>
-                    <div className="rq">
-                      <span className="rq__n">Q{a.id}</span>
-                      {a.question || titleById.get(a.id) || "—"}
-                    </div>
-                    <div className="ra">{fmtAnswer(a.answer)}</div>
-                  </div>
-                ))}
-              </div>
-            </details>
-          );
-        })}
+        {rows.map((r, idx) => (
+          <details className="rcard" key={r.id} open={idx === 0}>
+            <summary className="rsum">
+              <span className="rsum__n">#{rows.length - idx}</span>
+              <span className="rsum__time">{fmtDate(r.created_at)}</span>
+              <span className="rsum__spec">{r.answers?.length ?? 0} answers</span>
+              <span className="rsum__use">{snippet(r)}</span>
+            </summary>
+            <div className="rgrid">
+              {(r.answers ?? []).map((a, i) => (
+                <div className="rrow" key={a.id || i}>
+                  <div className="rq">{a.question || "—"}</div>
+                  <div className="ra">{fmtAnswer(a.answer)}</div>
+                </div>
+              ))}
+            </div>
+          </details>
+        ))}
       </div>
 
       <footer className="admin__foot">

@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
 import { getSql } from "../../../../lib/db";
-import { questions } from "../../../../lib/questions";
+import { schemaColumns } from "../../../../lib/questions";
 import { ADMIN_COOKIE, getStoredAdmin, sessionTokenFor } from "../../../../lib/adminAuth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Ans = { id: number; answer: unknown };
+type Ans = { id: string; answer: unknown };
 type Row = { created_at: string; submitted_at: string | null; answers: Ans[] };
 
 function esc(v: unknown): string {
@@ -44,14 +44,15 @@ export async function GET() {
     return new Response("Error: " + msg, { status: 500 });
   }
 
-  const header = ["submitted_at", ...questions.map((q) => `Q${q.id}: ${q.title}`)];
+  const columns = schemaColumns();
+  const header = ["submitted_at", ...columns.map((c) => c.label)];
   const lines = [header.map(esc).join(",")];
 
   for (const r of rows) {
     const map = new Map((r.answers ?? []).map((a) => [a.id, a.answer]));
     const cells = [
       r.submitted_at ?? r.created_at,
-      ...questions.map((q) => map.get(q.id)),
+      ...columns.map((c) => map.get(c.key)),
     ];
     lines.push(cells.map(esc).join(","));
   }

@@ -53,8 +53,8 @@ button {
 .app {
   display: grid;
   grid-template-columns: var(--rail-w) 1fr;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh; /* fixed height so only .stage scrolls; the rail stays put */
   background: var(--paper);
 }
 
@@ -1030,3 +1030,149 @@ button {
 }
 .login__btn:hover:not(:disabled) { background: var(--signal); }
 .login__btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ============ Celebration (finish screen) ============ */
+.celebrate {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+}
+.confetti {
+  position: absolute;
+  top: -14vh;
+  border-radius: 2px;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: petal-fall;
+  animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+/* petal shape: one pointed corner, three rounded */
+.confetti--petal { border-radius: 50% 0 50% 50%; }
+@keyframes petal-fall {
+  0% {
+    transform: translate3d(0, -14vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  8% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translate3d(var(--drift, 0), 116vh, 0) rotate(var(--rot, 360deg));
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .celebrate { display: none; }
+}
+
+/* ============ New compound field types ============ */
+.mainfield { margin-top: 26px; }
+.limitnote {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--signal);
+  margin-bottom: 10px;
+}
+.choice[data-disabled="true"] { opacity: 0.38; cursor: not-allowed; }
+.choice[data-disabled="true"]:hover { transform: none; border-color: var(--line); }
+
+.lineinput {
+  width: 100%;
+  background: var(--paper-3);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 15px;
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--ink);
+  transition: border-color 0.16s, box-shadow 0.16s;
+}
+.lineinput::placeholder { color: var(--ink-faint); }
+.lineinput:focus {
+  outline: none;
+  border-color: var(--signal);
+  box-shadow: 0 0 0 4px rgba(12, 143, 107, 0.12);
+}
+.lineinput--num { max-width: 160px; text-align: left; }
+.numwrap { display: flex; align-items: center; gap: 10px; }
+.unit {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+}
+
+/* ranked list */
+.rank { display: flex; flex-direction: column; gap: 9px; }
+.rankrow { display: flex; align-items: center; gap: 12px; }
+.rankrow__n {
+  flex: none;
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: grid; place-items: center;
+  background: var(--ink);
+  color: var(--paper-2);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+/* percentage table */
+.pct { display: flex; flex-direction: column; gap: 8px; }
+.pctrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 14px;
+  background: var(--paper-3);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+}
+.pctrow__label { font-size: 14.5px; color: var(--ink); line-height: 1.35; }
+.pctrow__in { display: flex; align-items: center; gap: 8px; flex: none; }
+.pctrow__in .lineinput { width: 78px; padding: 8px 10px; text-align: right; }
+
+/* field group */
+.grp { display: flex; flex-direction: column; gap: 18px; }
+.grp__item { display: flex; flex-direction: column; gap: 9px; }
+.grp__label { font-size: 14.5px; color: var(--ink-soft); font-weight: 500; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  border: 1px solid var(--line);
+  background: var(--paper-3);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.14s;
+}
+.pill:hover { border-color: var(--ink-soft); }
+.pill[data-on="true"] {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: #fff;
+}
+.textinput--sm { min-height: 90px; padding: 14px 16px; font-size: 16px; }
+
+/* follow-up sub-questions */
+.subq {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--line);
+}
+.subq__prompt {
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+/* the stage body should scroll for long compound screens */
+.qcard { padding-bottom: 8px; }
